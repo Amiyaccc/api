@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IP记录查看器</title>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Microsoft YaHei, sans-serif; padding: 20px; }
+        .记录 { border: 1px solid #ddd; padding: 15px; margin: 10px 0; background: #f9f9f9; }
+        .IP { color: #c00; font-weight: bold; }
+        .时间 { color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>📊 IP访问记录</h1>
+    <div id="记录列表">正在加载...</div>
+    
+    <script>
+        const 配置 = {
+            TOKEN: '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',
+            用户: 'amiyaccc',
+            仓库: 'api',
+            议题号: 1
+        };
+        
+        async function 加载记录() {
+            try {
+                const 响应 = await fetch(
+                    `https://api.github.com/repos/${配置.用户}/${配置.仓库}/issues/${配置.议题号}/comments`,
+                    {
+                        headers: {
+                            'Authorization': `token ${配置.TOKEN}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+                
+                const 所有评论 = await 响应.json();
+                const 容器 = document.getElementById('记录列表');
+                容器.innerHTML = '';
+                
+                // 从最新到最旧排序
+                所有评论.reverse().forEach(评论 => {
+                    const div = document.createElement('div');
+                    div.className = '记录';
+                    div.innerHTML = 评论.body.replace(/\n/g, '<br>');
+                    容器.appendChild(div);
+                });
+                
+            } catch(错误) {
+                document.getElementById('记录列表').innerHTML = 
+                    `<p style="color:red">加载失败：${错误.message}</p>`;
+            }
+        }
+        
+        加载记录();
+        // 每30秒自动刷新
+        setInterval(加载记录, 30000);
+    </script>
+</body>
+</html>
