@@ -36,15 +36,34 @@
                 
                 const 所有评论 = await 响应.json();
                 const 容器 = document.getElementById('记录列表');
+                
+                // 检查返回的是否是数组
+                if (!Array.isArray(所有评论)) {
+                    throw new Error('API返回的不是数组: ' + JSON.stringify(所有评论));
+                }
+                
+                // 清空容器
                 容器.innerHTML = '';
                 
-                // 从最新到最旧排序
-                所有评论.reverse().forEach(评论 => {
+                // 使用slice()创建副本再reverse，或者使用for循环反向遍历
+                const 评论副本 = [...所有评论]; // 创建副本
+                评论副本.reverse().forEach(评论 => {
                     const div = document.createElement('div');
                     div.className = '记录';
                     div.innerHTML = 评论.body.replace(/\n/g, '<br>');
                     容器.appendChild(div);
                 });
+                
+                // 或者使用for循环反向遍历（不会修改原数组）
+                /*
+                for (let i = 所有评论.length - 1; i >= 0; i--) {
+                    const 评论 = 所有评论[i];
+                    const div = document.createElement('div');
+                    div.className = '记录';
+                    div.innerHTML = 评论.body.replace(/\n/g, '<br>');
+                    容器.appendChild(div);
+                }
+                */
                 
             } catch(错误) {
                 document.getElementById('记录列表').innerHTML = 
