@@ -18,47 +18,45 @@
     <!-- 页面完全黑屏 -->
     <script>
         // 配置：替换成你刚刚部署得到的 Web 应用网址
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxNUQDy4QwfyvmH2lg3ZRThjgRuSWO_xIikDJbTbcZ67X82w_7wEEIlzs9Q_G0hA31PcA/exec'; // 例如：https://script.google.com/macros/s/.../exec
+        // 确保 WEB_APP_URL 已经更新为你第2步得到的最新URL
+const WEB_APP_URL = 'YOUR_NEW_WEB_APP_URL_HERE';
 
-        // 主要函数：收集信息并发送
-        async function logVisit() {
-            try {
-                // 1. 获取访客IP地址（使用免费的公共API）
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipResponse.json();
-                
-                // 2. 收集其他信息
-                const visitorData = {
-                    ip: ipData.ip,
-                    userAgent: navigator.userAgent,
-                    pageUrl: window.location.href,
-                    timestamp: new Date().toISOString()
-                };
+async function logVisit() {
+    try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        
+        const visitorData = {
+            ip: ipData.ip,
+            userAgent: navigator.userAgent,
+            pageUrl: window.location.href
+        };
 
-                console.log('收集到访问者信息:', visitorData);
+        console.log('正在发送数据:', visitorData);
 
-                // 3. 发送数据到 Google Apps Script Web App
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    // 注意：这里将数据转为JSON字符串发送[citation:10]
-                    body: JSON.stringify(visitorData),
-                    // 设置内容类型为JSON
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
+        // 使用新的 fetch 配置
+        const response = await fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'cors', // 明确请求模式为 cors
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(visitorData)
+        });
 
-                const result = await response.json();
-                console.log('数据已记录到Google Sheets，结果:', result);
-
-            } catch (error) {
-                // 静默失败，不在前台显示任何错误
-                console.error('记录过程中发生错误（用户无感知）:', error);
-            }
+        // 检查响应是否成功
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        // 当页面加载完成后，自动执行记录
-        window.addEventListener('load', logVisit);
+        const result = await response.json();
+        console.log('✅ 数据已成功记录到Google Sheets:', result);
+
+    } catch (error) {
+        console.error('记录失败:', error);
+    }
+}
+window.addEventListener('load', logVisit);
     </script>
 </body>
 </html>
