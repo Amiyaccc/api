@@ -729,7 +729,7 @@
     <!-- 公司信息区域 -->
     <div class="company-info">
         <div class="company-logo">✈️</div>
-        <div class="company-name">LLG国际网络有限公司</div>
+        <div class="company-name">由Surfshark提供网络服务</div>
         <div class="company-tagline">安全连接 · 全球畅游 · 专业服务</div>
         
         <div class="company-details">
@@ -750,7 +750,7 @@
         <div class="company-links">
             <a href="https://llg01.com/#/landing" class="company-link" target="_blank">官方网站</a>
             <a href="https://drfytjmjhggnrgergergergerg6555.saojc.xyz/api/v1/client/subscribe?token=5bc643ade3b9011fd287f5dc96afe57e" 
-               class="company-link" target="_blank">订阅链接</a>
+               class="company-link" target="_blank">关于我们</a>
             <a href="mailto:support@llg01.com" class="company-link">技术支持</a>
         </div>
         
@@ -1159,11 +1159,12 @@
                     },
                     (error) => {
                         console.error('获取位置失败:', error.message);
+                        AppState.userLocation = null; // 确保定位状态被清除
                         resolve(false);
                     },
                     {
-                        enableHighAccuracy: false,
-                        timeout: 10000,
+                        enableHighAccuracy: true, // 改为高精度获取
+                        timeout: 15000, // 延长超时时间
                         maximumAge: 0
                     }
                 );
