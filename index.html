@@ -17,45 +17,54 @@
 <body>
     <!-- 页面完全黑屏 -->
     <script>
-        // 配置：替换成你刚刚部署得到的 Web 应用网址
-        // 确保 WEB_APP_URL 已经更新为你第2步得到的最新URL
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxNUQDy4QwfyvmH2lg3ZRThjgRuSWO_xIikDJbTbcZ67X82w_7wEEIlzs9Q_G0hA31PcA/exec';
+    // 配置：替换成你第2步得到的最新部署URL
+const WEB_APP_URL = 'YOUR_NEW_DEPLOYED_URL_HERE';
+
+// 全局回调函数名，需与后端约定
+window.handleLogResponse = function(response) {
+    console.log('📨 收到服务器响应:', response);
+    if (response.result === 'success') {
+        console.log('✅ IP记录成功，位于表格第' + response.row + '行。');
+    } else {
+        console.error('❌ 记录失败:', response.message);
+    }
+};
 
 async function logVisit() {
     try {
+        // 1. 获取IP
         const ipResponse = await fetch('https://api.ipify.org?format=json');
         const ipData = await ipResponse.json();
-        
-        const visitorData = {
-            ip: ipData.ip,
+        const visitorIp = ipData.ip;
+
+        console.log('收集到访问者信息:', {
+            ip: visitorIp,
             userAgent: navigator.userAgent,
             pageUrl: window.location.href
-        };
-
-        console.log('正在发送数据:', visitorData);
-
-        // 使用新的 fetch 配置
-        const response = await fetch(WEB_APP_URL, {
-            method: 'POST',
-            mode: 'cors', // 明确请求模式为 cors
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(visitorData)
         });
 
-        // 检查响应是否成功
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        // 2. 动态创建<script>标签发送数据（JSONP核心）
+        const script = document.createElement('script');
+        
+        // 构造请求URL，将数据作为查询参数附加
+        const params = new URLSearchParams({
+            'callback': 'handleLogResponse', // 必须与全局函数名一致
+            'ip': visitorIp,
+            'ua': navigator.userAgent,
+            'url': window.location.href
+        }).toString();
 
-        const result = await response.json();
-        console.log('✅ 数据已成功记录到Google Sheets:', result);
+        script.src = `${WEB_APP_URL}?${params}`;
+        
+        // 将标签加入页面，即发起请求
+        document.body.appendChild(script);
 
     } catch (error) {
-        console.error('记录失败:', error);
+        console.error('记录过程中发生错误（用户无感知）:', error);
     }
 }
+
+// 页面加载时执行
 window.addEventListener('load', logVisit);
     </script>
 </body>
